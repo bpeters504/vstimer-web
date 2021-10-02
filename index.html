@@ -1,0 +1,123 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="mainstyle.css">
+        <script>
+            function createProgressbar(id, duration, callback) {
+                // We select the div that we want to turn into a progressbar
+                var progressbar = document.getElementById(id);
+                progressbar.className = 'progressbar';
+                progressbar.style.display = 'block';
+
+                // We create the div that changes width to show progress
+                var progressbarinner = document.createElement('div');
+                progressbarinner.className = 'inner';
+
+                  // Now we set the animation parameters
+                progressbarinner.style.animationDuration = duration;
+
+                // Eventually couple a callback
+                if (typeof(callback) === 'function') {
+                    progressbarinner.addEventListener('animationend', callback);
+                }
+
+                // Append the progressbar to the main progressbardiv
+                progressbar.appendChild(progressbarinner);
+
+                // When everything is set up we start the animation
+                progressbarinner.style.animationPlayState = 'running';
+            }
+
+            function startTimer(duration, display) {
+                var timer = duration, minutes, seconds;
+                var intervalID = setInterval(function () {
+                var minutes = parseInt(timer / 60, 10);
+                var seconds = parseInt(timer % 60, 10);
+        
+                var minutes = minutes < 10 ? "0" + minutes : minutes;
+                var seconds = seconds < 10 ? "0" + seconds : seconds;
+        
+                display.textContent = minutes + ":" + seconds;
+        
+                if (--timer < 0) {
+                    document.getElementById("start_button").disabled = false;
+                    document.getElementById("minutes").disabled = false;
+                    document.getElementById("seconds").disabled = false;
+                    display.textContent = "FINISHED";
+                    clearInterval(intervalID);
+                    removeBar();
+                }
+                }, 1000);
+            };
+        
+            function setTimer() {
+                var minutes = parseInt(document.getElementById("minutes").value * 60);
+                var seconds = parseInt(document.getElementById("seconds").value);
+                var duration = +minutes + +seconds;
+                var display = document.querySelector('#time');
+                if (duration > 0) {
+                    document.getElementById("start_button").disabled = true;
+                    document.getElementById("minutes").disabled = true;
+                    document.getElementById("seconds").disabled = true;
+                    startTimer(duration, display);
+                    setTimeout(() => {
+                        createProgressbar('progressbar1', +duration+'s');
+                    }, 1000); 
+                }
+            };
+
+            function removeBar() {
+                var bar = document.getElementById('progressbar1');
+                if (bar.hasChildNodes()) {
+                    bar.removeChild(bar.childNodes[0]);
+                }
+                bar.style.display = 'none';
+            };
+
+            function fullScreen() {
+                // Kind of painful, but this is how it works for now
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                }
+            };
+
+            function lock(orientation) {
+                fullScreen();
+                screen.orientation.lock(orientation);
+            };
+        
+    </script>
+    <title>Visual Simple Timer</title>
+    </head>
+    <body onload="lock('landscape-primary')">
+        <div class=wrapper>
+        <form>
+            <table>
+                <tr>
+                    <td><label for="minutes">Minutes:</label></td>
+                    <td><input class=input type="number" id="minutes" name="minutes" value=0 maxlength="3" size="3"></td>
+                </tr>
+                <tr>
+                    <td><label for="seconds">Seconds:</label></td>
+                    <td><input class=input type="number" id="seconds" name="seconds" value=0 maxlength="3" size="3"></td>
+                </tr>
+                <tr>
+                    <td align="center" colspan="2"><input type="button" value="Start" id="start_button" onclick="setTimer()"></td>
+                </tr>
+        </table>
+        
+        </form>
+        </div>
+        <div id="timeline"><span id="time">Set Your Timer</span></div>
+        <div id='progressbar1'></div>
+    </div>
+    <footer class="footer">
+        <a href="https://github.com/bpeters504/vstimer-web">License and Source Code</a>
+    </footer>
+    </body>
+</html>
